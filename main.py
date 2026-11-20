@@ -1,5 +1,5 @@
 from coches import coches
-from tkinter import Tk,Label,Entry,Button,messagebox
+from tkinter import Tk,Label,Entry,Button,messagebox, StringVar
 
 
 class App:
@@ -73,7 +73,7 @@ class App:
         self.id.focus()
         self.id.pack(pady=5)
         
-        self.btn_buscar=Button(self.ventana,text=":: Buscar ::",command= lambda:self.busca_controller("eliminar"))
+        self.btn_buscar=Button(self.ventana,text=":: Buscar ::",command= lambda:self.buscar_controller("eliminar"))
         self.btn_buscar.pack(pady=5)
         
         self.btn_eliminar=Button(self.ventana,text=":: Eliminar ::",state="disabled",command=lambda:{self.eliminar_coche_controller(),self.eliminar_coche_view()})
@@ -97,33 +97,45 @@ class App:
         self.id.focus()
         self.id.pack(pady=5)
         
+        self.btn_buscar=Button(self.ventana,text="Buscar",command=lambda:self.buscar_controller("modificar"))
+        self.btn_buscar.pack(pady=5)
+        
         Label(self.ventana,text="...Datos del Coche").pack(pady=10)
         
+        # Variables asociadas a los campos
+        self.var_marca = StringVar()
+        self.var_color = StringVar()
+        self.var_modelo = StringVar()
+        self.var_velocidad = StringVar()
+        self.var_potencia = StringVar()
+        self.var_asientos = StringVar()
+        
         Label(self.ventana,text="Marca: ").pack(pady=5)
-        self.marca=Entry(self.ventana)
+        self.marca=Entry(self.ventana,textvariable=self.var_marca)
         self.marca.pack(pady=5)
         
         Label(self.ventana,text="Color: ").pack(pady=5)
-        self.color=Entry(self.ventana)
+        self.color=Entry(self.ventana,textvariable=self.var_color)
         self.color.pack(pady=5)
         
         Label(self.ventana,text="Modelo: ").pack(pady=5)
-        self.modelo=Entry(self.ventana)
+        self.modelo=Entry(self.ventana,textvariable=self.var_modelo)
         self.modelo.pack(pady=5)
         
         Label(self.ventana,text="Velocidad: ").pack(pady=5)
-        self.velocidad=Entry(self.ventana)
+        self.velocidad=Entry(self.ventana,textvariable=self.var_velocidad)
         self.velocidad.pack(pady=5)
         
         Label(self.ventana,text="Potencia: ").pack(pady=5)
-        self.potencia=Entry(self.ventana)
+        self.potencia=Entry(self.ventana,textvariable=self.var_potencia)
         self.potencia.pack(pady=5)
         
         Label(self.ventana,text="# de Asientos: ").pack(pady=5)
-        self.asientos=Entry(self.ventana)
+        self.asientos=Entry(self.ventana,textvariable=self.var_asientos)
         self.asientos.pack(pady=5)
         
-        Button(self.ventana,text=":: Modificar ::",command=lambda:{self.modificar_coche_controller(),self.modificar_coche_view()}).pack(pady=5)
+        self.btn_modificar=Button(self.ventana,text=":: Modificar ::",state="disabled",command=lambda: {self.modificar_coche_controller(),self.modificar_coche_view()})
+        self.btn_modificar.pack(pady=5)
         
         Button(self.ventana,text=":: Regresar ::",command=self.menu_acciones).pack(pady=5)
         
@@ -141,18 +153,18 @@ class App:
                 
     def confirmacion_eliminar(self,tipo_accion):
         resp=messagebox.askyesno(title=":: Confirmar Accion ::",message=f"...¿Esta seguro de que desea {tipo_accion} este registro?...")
-        if resp=="yes":
+        if resp==True:
             return True
         else:
             return False
         
     # .... Controlador o Controller del Sistema ....
     def respuesta_sql(self,respuesta):
-            if respuesta:
-                messagebox.showinfo(title=":: Exitoso ::",message="...¡Accion Realizada con Exito!...")
-            else:
-                messagebox.showerror(title=":: Verifique por favor ::",message="...¡Esta Accion no pudo realizarse en este momento!...")
-    
+        if respuesta:
+            messagebox.showinfo(title=":: Exitoso ::",message="...¡Accion Realizada con Exito!...")
+        else:
+            messagebox.showerror(title=":: Verifique por favor ::",message="...¡Esta Accion no pudo realizarse en este momento!...")
+
     def insertar_coche_controller(self):
         coches1=coches.Coches(self.marca.get(),self.color.get(),self.modelo.get(),self.velocidad.get(),self.potencia.get(),self.asientos.get())                   
         respuesta=coches1.insertar()
@@ -185,12 +197,19 @@ class App:
         respuesta=coches1.actualizar(id)
         self.respuesta_sql(respuesta)
         del coches1
-    def busca_controller(self,tipo_accion):
+    def buscar_controller(self,tipo_accion):
         id=self.id.get()      
         coche1=coches.Coches.buscar(id)
         if len(coche1)>0:
             messagebox.showinfo(title="...!REGISTRO ENCONTRADO!...", message=f"El regitro fue encontrado con exito, puedes {tipo_accion}")
             self.cambiar_estado_btn(True, tipo_accion)
+            if tipo_accion=="modificar":
+                self.var_marca.set(coche1[0][1])
+                self.var_color.set(coche1[0][2])
+                self.var_modelo.set(coche1[0][3])
+                self.var_velocidad.set(coche1[0][4])
+                self.var_potencia.set(coche1[0][5])
+                self.var_asientos.set(coche1[0][6])
         else:
             messagebox.showerror(title="...!REGISTRO NO ENCONTRADO!...", message=f"El regitro no fue encontrado, no puedes {tipo_accion}")
             self.cambiar_estado_btn(False, tipo_accion)

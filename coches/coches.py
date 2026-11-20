@@ -85,8 +85,9 @@ class Coches:
             cursor.execute("delete from coches where id=%s",(id,))
             conexion.commit()
             return True
-        except:
-            return False
+        except Exception as e:
+            print(f"Ocurrió un error: {e}")
+            return False 
     
     def actualizar(self,id):
         try:
