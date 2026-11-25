@@ -1,5 +1,5 @@
 from coches import coches
-from tkinter import Tk,Label,Entry,Button,messagebox, StringVar,Menu,Frame
+from tkinter import Tk,Label,Entry,Button,messagebox, StringVar,Menu,Frame,ttk
 
 
 class App:
@@ -44,8 +44,8 @@ class App:
        self.frame=Frame(self.ventana)
        self.frame.pack(pady=10)
        
-       Button(self.frame,text="Coches",width=10,height=3,command=self.menu_acciones).grid(row=10,column=0,pady=10,padx=10,sticky="e")
-       Button(self.frame,text="Salir",width=10,height=3,command=self.ventana.quit).grid(row=11,column=0,pady=10,padx=10,sticky="e")
+       Button(self.frame,text="Coches",width=10,height=3,command=self.menu_acciones).grid(row=0,column=0,pady=10,padx=10,sticky="e")
+       Button(self.frame,text="Salir",width=10,height=3,command=self.ventana.quit).grid(row=0,column=1,pady=10,padx=10,sticky="e")
     
     def menu_acciones(self):
         self.borrarPantalla()
@@ -121,9 +121,25 @@ class App:
         self.borrarPantalla()
         self.barraMenu()
         Label(self.ventana,text="..:: Consultar Coches ::..").pack(pady=10)
-        filas=""
-        filas=self.consultar_coche_controller(filas)
-        Label(self.ventana,text=f"{filas}").pack(pady=5)
+        # Tabla
+        self.tree =ttk.Treeview(self.ventana, columns=("ID", "Marca", "Color", "Modelo","Velocidad","Potencia","Asientos"), show="headings")
+        self.tree.heading("ID", text="ID")
+        self.tree.column("ID", width=40, anchor="w")
+        self.tree.heading("Marca", text="Marca")
+        self.tree.column("Marca", width=60, anchor="w")
+        self.tree.heading("Color", text="Color")
+        self.tree.column("Color", width=60, anchor="w")
+        self.tree.heading("Modelo", text="Modelo")
+        self.tree.column("Modelo", width=60, anchor="w")
+        self.tree.heading("Velocidad", text="Velocidad")
+        self.tree.column("Velocidad", width=60, anchor="w")
+        self.tree.heading("Potencia", text="Potencia")
+        self.tree.column("Potencia", width=60, anchor="w")
+        self.tree.heading("Asientos", text="Asientos")
+        self.tree.column("Asientos", width=60, anchor="w")
+        self.tree.pack(fill="both", expand=False)
+        self.consultar_coche_controller()
+        
         Button(self.ventana,text=":: Regresar ::",command=self.menu_acciones).pack(pady=5)
     
     def modificar_coche_view(self):
@@ -225,17 +241,12 @@ class App:
             respuesta=False
         self.respuesta_sql(respuesta)
         
-    def consultar_coche_controller(self,filas):
-        registros=coches.Coches.consultar()
-        num_coche=1
-        if len(registros)>0:
-           for fila in registros:
-             filas=filas+(f"\n\tCoche #: {num_coche}\nID: {fila[0]}\tMarca: {fila[1]}\n\tColor: {fila[2]}\tModelo: {fila[3]}\n\tVelocidad: {fila[4]}\tPotencia: {fila[5]}\tAsientos: {fila[6]}")
-             num_coche+=1
-        else:
-            filas="¡No se encontro informacion en la BD!..."
-        return filas    
-      
+    def consultar_coche_controller(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+        for row in coches.Coches.consultar():
+            self.tree.insert("", "end", values=row)
+        
     def modificar_coche_controller(self):
         id=self.id.get()
         coches1=coches.Coches(self.marca.get(),self.color.get(),self.modelo.get(),self.velocidad.get(),self.potencia.get(),self.asientos.get())  
