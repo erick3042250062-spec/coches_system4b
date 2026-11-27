@@ -1,6 +1,6 @@
 from conexionBD import conexion,cursor
 
-class Coches:
+class CochesModel:
     def __init__(self,marca,color,modelo,velocidad,potencia,asientos):
        self._marca=marca
        self._color=color
@@ -103,25 +103,4 @@ class Coches:
             return cursor.fetchall()
         except:
             return []
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
 
